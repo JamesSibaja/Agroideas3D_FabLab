@@ -1,0 +1,166 @@
+<!-- se extiende la plantilla genérica-->
+{% extends "generica.html" %}
+{% block content %}
+
+  
+<style>
+
+  tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>
+<script>
+  // Definimos una variable llamada 'miVariable' y le asignamos un valor
+  val1 = 2;
+
+  // Mostramos el valor de la variable en el elemento HTML con el id 'resultado'
+  // document.getElementById("resultado").textContent = miVariable;
+</script>
+<div class="container" style="overflow-y: scroll; background-color:rgb(255, 255, 255);" style="width:100%;height: 100%" >
+  <div class="separar"></div>  
+ 
+    <h1 style="text-align: center;">Placas virtuales</h1>
+    <div id ='search_input' style="float: left; padding-left: 5%; width: 80%;">
+      <form method="get" >  
+        
+          <div  style=" width: 80%;float: left;">
+            <input type="text" class="form-control" placeholder="Buscar ..." name ='buscar' value="{{request.GET.buscar}}">
+            <input type="hidden" name="ver" value="true">
+            <!-- <input type="hidden" name="placaId" value={{slide.id}}> -->
+          </div>
+          <span>
+            <button class="btn btn-primary js-tooltip" type="submit" >Buscar</button>
+          </span>
+        
+      </form>
+    </div>
+    {%load static%} 
+      {%if ver%}
+    
+      <div id ='search_input' style="float: left; ">
+        <span>
+          <form method="get">
+        
+            <input class="btn btn-success js-tooltip" name="texto" type="submit" value='Lista'>
+        
+          </form>
+        </span>
+      </div>
+    <ul>
+    <div class="pagination" style="width: 100%; justify-content: center;">
+      <span class="step-links" >
+          {% if catalogo.has_previous %}
+              <a href="?page=1">&laquo; Primera</a>
+              <a href="?page={{ catalogo.previous_page_number }}">anterior</a>
+          {% endif %}
+    
+          <span class="current">
+              Página {{ catalogo.number }} de {{ catalogo.paginator.num_pages }}.
+          </span>
+    
+          {% if catalogo.has_next %}
+              <a href="?page={{ catalogo.next_page_number }}">siguiente</a>
+              <a href="?page={{ catalogo.paginator.num_pages }}">Última &raquo;</a>
+          {% endif %}
+      </span>
+    </div>  
+      
+      {%for slide in catalogo%}
+    <div style=" float: left;padding: 2%;border-radius:10px;width: 32%;">
+        <!-- <h2 style="text-align: center;">{{slide.name}}</h2> 
+        -->
+      <div class="imgbox" >
+        <p><img src="{{slide.image.url}}" style="box-shadow: 1px 1px 10px rgb(100, 99, 99);width: 100%;border-radius:10px"></p> 
+      </div>
+      <button class="btn btn-info js-tooltip" type="submit" onclick="location.href='{{ slide.get_absolute_url }}'">Ver</button>
+        
+      <!-- <button class="btn btn-outline-success js-tooltip" type="submit" onclick="location.href='/project2/{{slide.id}}'">Seleccionar</button> -->
+      <span>
+      <form  method="get">
+        <input type="hidden" name="placaId" value={{slide.id}}>
+      
+        <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
+      
+    </form>
+  </span>
+      <!-- <form method="get" >  
+        
+        <div  style=" width: 80%;float: left;">
+          
+          <input type="hidden" name="placaId" value="{{slide.id}}">
+        </div>
+        <span>
+          <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
+        </span>
+        -->
+    <!-- </form>
+     
+
+    </div>
+    {%endfor%}
+    {%else%} -->
+    
+    <div id ='search_input' style="float: left;">
+      <span>
+        <form method="get">
+      
+          <input class="btn btn-success js-tooltip" name="ver" type="submit" value='Catálogo'>
+      
+        </form>
+      </span>
+    </div>
+
+    <ul>
+    <div class="pagination" style="width: 100%; justify-content: center;">
+      <span class="step-links" >
+          {% if catalogo.has_previous %}
+              <a href="?page=1">&laquo; Primera</a>
+              <a href="?page={{ catalogo.previous_page_number }}">anterior</a>
+          {% endif %}
+    
+          <span class="current">
+              Página {{ catalogo.number }} de {{ catalogo.paginator.num_pages }}.
+          </span>
+    
+          {% if catalogo.has_next %}
+              <a href="?page={{ catalogo.next_page_number }}">siguiente</a>
+              <a href="?page={{ catalogo.paginator.num_pages }}">Última &raquo;</a>
+          {% endif %}
+      </span>
+    </div>  
+    <table style=" border-collapse: collapse;padding: 15px;text-align: left;width:100%">
+      <tr>
+        <th><h2>Nombre</h2></th>
+        <th><h2>Descripción</h2></th>
+        <th></th> 
+        <th></th>
+      </tr>
+    {%for slide in catalogo%}
+    
+      <tr>
+      <td>{{slide.name}}  </td>
+      <td>{{slide.description}}</td>
+      <td><a  href='{{ slide.get_absolute_url }}'>Ver</a> </td> 
+      <td>
+      <form  method="get">
+        <input type="hidden" name="placaId" value={{slide.id}}>
+      <span>
+        <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
+      </span>
+    </form>
+  </td>
+      <!-- <th><a  href='/project2/{{slide.id}}'>Seleccionar</a></th> -->
+    </tr>
+
+
+{%endfor%}
+</table>
+    {%endif%}
+    
+
+    </ul>
+
+  
+</div>
+
+{% endblock %}
