@@ -1,0 +1,57 @@
+{% extends "generica.html" %}
+{% block content %}  
+{%load static%} 
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    h1, h2 {
+        text-align: center;
+        color: #007bff;
+    }
+    p {
+        line-height: 1.6;
+    }
+    .mission {
+        margin-bottom: 30px;
+    }
+    .commitment {
+        margin-top: 50px;
+    }
+    .commitment p {
+        font-weight: bold;
+    }
+    .commitment a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .commitment a:hover {
+        text-decoration: underline;
+    }
+</style>
+<div class="container">
+    <h1>Bienvenido a Agroideas3D</h1>
+    <div class="mission">
+        <h2>Nuestra Misión</h2>
+        <p>En Agroideas3D, nos dedicamos a proporcionar un repositorio virtual de modelos 3D especializados en agricultura y ganadería. Nuestra misión es acercar la tecnología a los productores y agricultores, reduciendo la brecha digital en el sector agrícola y ganadero.</p>
+        <p>Buscamos facilitar el acceso a herramientas y recursos tecnológicos que mejoren la producción y la gestión en el campo, ofreciendo modelos 3D traducidos al español y verificados para garantizar su funcionalidad y eficacia.</p>
+    </div>
+    <div class="commitment">
+        <h2>Nuestro Compromiso</h2>
+        <p>En Agroideas3D, estamos comprometidos con la democratización de la tecnología en el sector agrícola y ganadero. Trabajamos en estrecha colaboración con agricultores, ganaderos, ingenieros y diseñadores para ofrecer soluciones innovadoras que impulsen el progreso y la sostenibilidad en el campo.</p>
+        <p>Únete a nosotros en nuestra misión de transformar la agricultura y la ganadería a través de la tecnología. <a href="#">Descubre más</a> sobre lo que ofrecemos.</p>
+    </div>
+</div>
+{% endblock %}

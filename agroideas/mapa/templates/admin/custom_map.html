@@ -1,0 +1,25 @@
+{% extends "leaflet/admin/base.html" %}
+
+{% block extra_head %}
+    <!-- Cualquier script o estilo adicional que desees incluir -->
+    <script>
+        // Código JavaScript personalizado aquí
+    </script>
+{% endblock %}
+
+{% block content %}
+    <!-- Contenido principal del mapa -->
+    <div id="map" class="leaflet-map" style="height: 400px;"></div>
+{% endblock %}
+
+{% block extra_map %}
+    <!-- Configuración y contenido adicional del mapa -->
+    <script>
+        // Configuración del mapa Leaflet
+        var map = L.map('map').setView([30.0, -100.0], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+    </script>
+{% endblock %}
+

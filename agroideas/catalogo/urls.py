@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
-from catalogo.views import catalogo, delete
+from catalogo.views import catalogo, delete, modelo_detalle
 from . import views
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.models import User
@@ -21,6 +21,7 @@ def admin_required(view_func):
 
 urlpatterns = [
     path('', catalogo, name = "Inicio"),
+    path('modelo/<int:pk>/', modelo_detalle, name='modelo-detalle'),
     # path('micro/<pk>/',micro.as_view(),name='micro-slide'),
 
     

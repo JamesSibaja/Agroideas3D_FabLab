@@ -61,6 +61,11 @@
   <script  type="text/javascript" src="{% static 'dist/Control.FullScreen.js'%}"></script>
   <script type="text/javascript" src="{% static 'dist/Leaflet.BigImage.min.js'%}"></script>
   <link rel="stylesheet" type="text/css" href="{% static 'dist/Leaflet.BigImage.min.css'%}" />
+  <!-- <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css"> -->
+  <script type="text/javascript" src="{% static 'leaflet/Leaflet-ExtraMarkers-master/dist/js/leaflet.extra-markers.min.js' %}"></script>
+  <link type="text/css"  href="{% static 'leaflet/Leaflet-ExtraMarkers-master/dist/css/leaflet.extra-markers.min.css' %}" rel="stylesheet">
+  <link  type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
   #map.fullscreen{ 
     z-index: 9999; 
@@ -88,7 +93,8 @@
   }
   .container {
       height: 100%;
-      background: #f0e68c;
+      background: #ffffff00;
+      max-width: 1400px;
   }
   .video-container {
       position: relative;
@@ -192,7 +198,7 @@
                           <a class="nav-link" style="font-size: 19px;" href="{% url 'Mapa' %}">Mapa</a>
                       </li>
                       <li style="margin-left: 10px;" class="nav-item {% if 'Mapa/' in request.path %}active{% endif %}  ">
-                          <a class="nav-link" style="font-size: 19px;" href="{% url 'Inicio' %}">Sobre Nosotros</a>
+                          <a class="nav-link" style="font-size: 19px;" href="{% url 'Sobre_nosotros' %}">Sobre Nosotros</a>
                       </li>
                       <li style="margin-left: 20px;" class="nav-item ">
                         <a class="navbar-brand" href="#">

@@ -29,17 +29,27 @@ RUN apt-get update && \
     fonts-freefont-ttf \
     postgresql \
     postgresql-contrib \
-    libopenslide0 \
+    libgdal-dev \
+    gdal-bin \
+    python3-psycopg2 \
+    binutils \
     nginx && \
     rm -rf /var/lib/apt/lists/*
 
 # activa el entorno virtual, actualiza pip e instala las dependencias de Python
+RUN apt-get update && \
+    apt-get install -y \
+    postgis && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN . venv/bin/activate && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # Configura las variables de entorno para Django
 ENV DJANGO_SETTINGS_MODULE=agroideas.settings
+
+# RUN echo 'GDAL_LIBRARY_PATH=$(gdal-config --prefix)/lib/libgdal.so' >> ~/.bashrc
 
 # Copia la configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf

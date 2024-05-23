@@ -1,0 +1,39 @@
+{% load static %}
+{{ widget.attrs|json_script:"id_"|safe }}
+
+<div id="{{ widget.name }}_map" class="gis-map-widget" style="height: 300px;"></div>
+
+<input id="{{ widget.name }}" name="{{ widget.name }}" type="hidden" {% if widget.value %}value="{{ widget.value }}" {% endif %}>
+
+<script type="text/javascript" src="{% static 'admin/js/leaflet/leaflet.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/leaflet/leaflet-src.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/leaflet/leaflet.admin.js' %}"></script>
+
+<script>
+    (function($) {
+        var $map = $('#{{ widget.name }}_map');
+        var map = L.map($map.get(0));
+        var marker;
+
+        var defaultLocation = [{{ widget.value.1 }}, {{ widget.value.0 }}];  // Si hay un valor predeterminado
+
+        map.setView(defaultLocation, 10);
+
+        var layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        {% if widget.value %}
+        marker = L.marker(defaultLocation).addTo(map);
+        {% endif %}
+
+        map.on('click', function(e) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker(e.latlng).addTo(map);
+            $('#{{ widget.name }}').val(e.latlng.lng + ', ' + e.latlng.lat);
+        });
+    })(django.jQuery);
+</script>
+

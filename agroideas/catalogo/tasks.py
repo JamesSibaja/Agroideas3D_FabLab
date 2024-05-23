@@ -4,7 +4,7 @@ from celery.result import AsyncResult
 from celery import current_task
 import os
 import math
-import openslide
+# import openslide
 from PIL import Image
 from catalogo.models import modelo3d
 

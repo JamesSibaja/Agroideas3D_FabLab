@@ -1,13 +1,13 @@
-virtual_microscope/media/archivo/*
-virtual_microscope/media/slides/*
+agroideas/media/archivo/*
+agroideas/media/slides/*
 **/migrations/
 venv/*
 env/
 
-!virtual_microscope/media/archivo/
-!virtual_microscope/media/slides/
+!agroideas/media/archivo/
+!agroideas/media/slides/
 !venv/
-virtual_microscope/docs
+agroideas/docs
 
 
 # Ignorar archivos y carpetas específicos

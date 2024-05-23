@@ -70,15 +70,17 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'channels',
-    'daphne',
+    'colorfield',
+    'leaflet',
+    # 'channels',
+    # 'daphne',
     # 'geodjango_admin',
     "django.contrib.gis",
     'django.contrib.staticfiles',
-    'django_celery_results',
+    # 'django_celery_results',
 ]
 
-ASGI_APPLICATION = 'agroideas.asgi.application'
+# ASGI_APPLICATION = 'agroideas.asgi.application'
 # python3 manage.py migrate django_celery_results
 
 MIDDLEWARE = [
@@ -146,10 +148,10 @@ LOGGING = {
         'handlers': ['console'],
         'level': 'INFO',
     },
-    'channels': {
-        'handlers': ['console'],
-        'level': 'DEBUG',  # O ajusta al nivel que desees
-    },
+    # 'channels': {
+    #     'handlers': ['console'],
+    #     'level': 'DEBUG',  # O ajusta al nivel que desees
+    # },
 }
 WSGI_APPLICATION = 'agroideas.wsgi.application'
 # GDAL_LIBRARY_PATH = '/usr/lib/ogdi/4.1/libgdal.so'  # Reemplaza esta ruta con la ruta correcta en tu sistema si es diferente
@@ -175,17 +177,17 @@ WSGI_APPLICATION = 'agroideas.wsgi.application'
 #     },
 # }
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            "hosts": [('redis', 6379)],
-        },
-    },
-}
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('redis', 6379)],
+#         },
+#     },
+# }
 
 
-CHANNELS_LAYER = 'Mapa.routing.application'
+# CHANNELS_LAYER = 'Mapa.routing.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

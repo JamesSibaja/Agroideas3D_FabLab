@@ -7,13 +7,15 @@ from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.views.generic.edit import FormView
-from .forms import  UploadFileForm, SlideForm
-from .tasks import convert_to_tiles
+# from .forms import  UploadFileForm, SlideForm
+# from .tasks import convert_to_tiles
 from django.http import JsonResponse
 from django.http import HttpResponse
 from django.core.files.base import ContentFile
 import os
 import logging
+from django.shortcuts import get_object_or_404
+
 
 # Configura la configuración de registro según tus necesidades
 logger = logging.getLogger('myapp.view') 
@@ -26,6 +28,22 @@ logger = logging.getLogger('myapp.view')
 # class microfull(generic.DetailView):
 #     template_name = "catalogo/microscopiofull.html"
 #     model = modelo3d
+def modelo_detalle(request, pk):
+    modelo = get_object_or_404(modelo3d, pk=pk)
+    data = {
+        'nombre': modelo.nombre,
+        'descripcion': modelo.descripcion,
+        'imagen': modelo.imagen.url,
+        'stl': modelo.stl.url,
+        'categoria': modelo.categoria.nombre if modelo.categoria else '',
+        'material': modelo.material.nombre if modelo.material else '',
+        'calidad': modelo.calidad,
+        'descripcion_corta': modelo.descripcion_corta,
+        'soportes': modelo.soportes,
+        'horas': modelo.horas,
+        'minutos': modelo.minutos,
+    }
+    return JsonResponse(data)
 
 def catalogo(request):
     queryset = request.GET.get('buscar')
@@ -37,8 +55,8 @@ def catalogo(request):
         condiciones_busqueda = []
 
         for palabra in palabras:
-            condicion = Q(name__icontains=palabra)
-            condicion2 = Q(description__icontains=palabra) 
+            condicion = Q(nombre__icontains=palabra)
+            condicion2 = Q(descripcion__icontains=palabra) 
             condiciones_busqueda.append(condicion)
             condiciones_busqueda.append(condicion2)
 
@@ -202,7 +220,7 @@ def catalogo(request):
 
 def delete(request, modelo3d_id):
     instancia = modelo3d.objects.get(id=modelo3d_id)
-    new_url = '/processing/'
+    new_url = '//'
     instancia.delete()
 
     return redirect(new_url)

@@ -14,16 +14,19 @@ COPY requirements.txt /app/
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    fonts-freefont-ttf \
+    # fonts-freefont-ttf \
     postgresql \
     libgdal-dev \
     gdal-bin \
-    postgresql-13-postgis-3 \
-    postgresql-server-dev-13 \
-    python3-psycopg3 \
+    python3-psycopg2 \
     binutils \
     postgresql-contrib \
     nginx && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && \
+    apt-get install -y \
+    postgis && \
     rm -rf /var/lib/apt/lists/*
 
 # activa el entorno virtual, actualiza pip e instala las dependencias de Python
@@ -31,20 +34,7 @@ RUN . venv/bin/activate && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Ejecuta collectstatic sin activar el entorno virtual
-# RUN python manage.py collectstatic --noinput
 
-# Configura las variables de entorno para Django
-ENV DJANGO_SETTINGS_MODULE=agroideas.settings
-
-# ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib:$LD_LIBRARY_PATH
-
-# Copia la configuración de Nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Ejecuta collectstatic
-# RUN python manage.py collectstatic --noinput
-
-# Comando para iniciar el servidor Django con Daphne y Nginx
-# CMD ["bash", "-c", "source venv/bin/activate && gunicorn -w 4 -k gevent agroideas..wsgi:application --bind 0.0.0.0:8765"] 
 CMD ["/bin/bash", "-c", "source venv/bin/activate && python manage.py collectstatic --noinput && gunicorn agroideas.wsgi:application -w 4 --worker-connections=1000 --timeout 600 --bind 0.0.0.0:8765"]

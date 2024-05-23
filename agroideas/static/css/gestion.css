@@ -183,7 +183,7 @@ container.cta .cta-innerv {
   position: relative;
   padding: 3rem;
   margin: 0.5rem;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgb(255, 255, 255);
 }
 
 @media (min-width: 992px) {
@@ -280,12 +280,12 @@ ul.errorlist{
   color: red;
 }
 
-.imgbox {
+/* .imgbox {
   display: grid;
   height: 50%;
-}
+} */
 
-.catalogoA {
+/* .catalogoA {
   float: left;
   background: rgb(120, 189, 221);
   box-shadow: 1px 1px 10px rgb(100, 99, 99);
@@ -306,9 +306,9 @@ padding: 2%;
 border-radius:10px;
 margin-top: 1%;
 margin-left: 1%;
-width: 32%;
+width: 32%; */
 
-}
+/* } */
 
 .center-fit {
   max-width: 100%;
@@ -316,11 +316,11 @@ width: 32%;
   margin: auto;
 }
 
-@media screen and (max-width: 800px){
+/* @media screen and (max-width: 800px){
 .catalogoA {
 display: none;
 }
 .catalogoB {
 width: 90%;
 }
-}
+} */

@@ -1,41 +1,99 @@
 <!-- se extiende la plantilla genérica-->
 {% extends "generica.html" %}
-{% block content %}
+{% block content %}  
 
-  
 <style>
+
+.info-panel {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px solid #ccc;
+    padding: 20px;
+    display: none; /* Oculta el panel por defecto */
+}
 
 
 .product-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px;
+    position: relative;
+    /* float: left; */
 }
-
-/* .product {
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(61, 61, 61, 0.473);
-    background-color: #999999; */
-    
-    /* border: 1px solid #383838; 
-    width: 27%;
-    height: 30%;
-    text-align: center;
-    padding: 20px;
-    margin: 2%;
+/* .container {
+    box-sizing: border-box;  
+    overflow: auto;
 } */
 
+.product-list.active {
+  width: 60%;
+}
+
 .product {
-        border-radius: 8px;
-        width: 28%;
-        min-width: 300px; /* Ancho mínimo para el contenedor */
-        height: 30%;
-        text-align: center;
-        padding: 2px;
-        margin: 1%;
-    }
+    position: relative;
+    border-radius: 8px;
+    width: 28%;
+    min-width: 300px; /* Ancho mínimo para el contenedor */
+    height: 320px;
+    /* text-align: center; */
+    /* padding: 2px; */
+    margin: 1%;
+}
+
+.view-button, .download-button-2 {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 200px;
+    color: white;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    
+}
+
+.view-button:hover, .download-button-2:hover {
+    /* background-color: rgba(0, 0, 0, 0.75); */
+    background-color: #47129ba8;
+}
+
+.view-button {
+    left: 0;
+    border-radius: 8px 0 0 8px;
+}
+.download-button-2 {
+    right: 0;
+    border-radius: 0 8px 8px 0;
+}
+
+/* .product:hover .view-button {
+    display: block; 
+    
+} */
+
+.product-dowload {
+    display: none; /* Inicialmente oculta el botón */
+    position: absolute; /* Posiciona el botón en relación al producto */
+    top: 55px; /* Ajusta la posición vertical del botón */
+    left: 50%; /* Ajusta la posición horizontal del botón */
+    transform: translateX(-50%); 
+    color: #ffffff;
+    
+}
+
+.product:hover .product-dowload {
+    display: block;
+}
+
 
 .product-image {
     
@@ -51,42 +109,24 @@
     transition: transform 0.3s ease;
 }
 
-.product:hover .product-image {
-    transform: scale(1.05);
 
-    filter: brightness(1.05);
-  
-}
 
 .product-name {
     font-size: 1.2rem;
     font-weight: bold;
 }
 
+
+
 .product-description {
     /* font-size: 1rem; */
     margin: 10px 0;
     color: #555;
-    overflow-y: scroll;
-    max-height: 120px; /* Altura máxima del contenedor */
+    overflow-y: hidden;
+    max-height: 140px; /* Altura máxima del contenedor */
 }
-.button {
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
-  background-color: #356b67;
-  border-radius: 8px;
-  text-align: center;
-  line-height: 50px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  color: #ffffff;
-  font-size: 24px;
-}
-
 .button:hover {
-    background-color: #1565C0;
+    background-color: #5715c0;
     transform: scale(1.1);
     filter: brightness(1.2);
 }
@@ -100,7 +140,10 @@
     width: 100%;
     display: flex;
 }
-
+.product:hover .view-button, .product:hover .download-button-2 {
+    opacity: 1;
+    /* transform: scale(1.05); */
+}
 .search-box input {
     width: 100%;
     padding: 8px;
@@ -124,29 +167,113 @@
 .search-box button:hover {
     background-color: #0056b3;
 }
-
-/* .button-description {
-    font-size: 14px;
-    margin-top: 5px;
+.text-option{
+    display: block;
+}
+.div-image-view {
     display: none;
+    width: 37%;
+    position: relative;
+    z-index: 1000;
+    padding: 20px;
+    /* overflow-y: auto; */
+    height: 100%; /* Asegura que cubre todo el alto de su contenedor */
+
 }
 
-.button:hover .button-description {
+
+.image-view {
+    position: -webkit-sticky; /* For Safari */
+    position: sticky;
+    top: 70px; /* Sticky a partir de 20px desde la parte superior */
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.3);
+    padding: 20px;
+    box-sizing: border-box;
+    height: 500px;
+    overflow-y: scroll;
+}
+.div-image-view.active {
     display: block;
-} */
+}
+.image-view img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+@media (max-width: 768px) {
+    .info-panel {
+        display: block;
+    }
+    .product {
+        width: 90%;
+    }
+    .view-button, .download-button-2{
+        left: auto;
+        right: 0;
+        border: 1px solid #383838; 
+        width: 30%;
+        height: 100px;
+        opacity: 1;
+    }
+    .view-button{
+        top: 0px;
+        background-color: #3b209b;
+        border-radius: 0 8px 0 0 ; 
+    }
+    .view-button:hover{
+        background-color: #3b209b;
+        filter: brightness(0.85);
+    }
+     .download-button-2:hover {
+        /* background-color: #29166b; */
+        background-color: #1d50be ;
+        filter: brightness(0.95);
+        
+    }
+    
+    .product-image{
+        position: relative;
+        width: 70%;
+        left: 0%;
+        border-radius: 8px 0 0 8px;
+        box-shadow: 0 0 0;
+    }
+    .material-icons{
+        font-size: 40px;
+    }
+    .download-button-2{
+        top: 100px;
+        background-color: #1d50be ;
+        
+        border-radius: 0 0 8px 0 ;
+    }
+    .text-option{
+        display: none;
+    }
+}
 </style>
-<script>
+<!-- <script>
   // Definimos una variable llamada 'miVariable' y le asignamos un valor
   val1 = 2;
 
-  // Mostramos el valor de la variable en el elemento HTML con el id 'resultado'
-  // document.getElementById("resultado").textContent = miVariable;
-</script>
-<div class="container" style="background-color:rgba(255, 255, 255, 0);width:100%;height: 100%;height: auto;min-height: 100vh;" >
+</script> -->
+<div class="container" style="background-color:rgba(255, 255, 255, 0);min-height: 100%;height: auto;" >
+
   <div class="separar"></div>  
- 
-    <h1 style="margin-top: 15px;margin-bottom: 15px;text-align: center;">Catálogo</h1>
-    <div id="search_input">
+    <!-- <h1 style="margin-top: 15px;margin-bottom: 15px;text-align: center;">Catálogo</h1> -->
+    <div style="margin-top: 30px;" id="search_input">
       <form method="get" class="search-box">  
           <input type="text" class="form-control" placeholder="Buscar..." name="buscar" value="{{request.GET.buscar}}">
           <!-- <input type="hidden" name="ver" value="true"> -->
@@ -159,32 +286,13 @@
 
     
     {%load static%} 
-     
+    <div class="info-panel">
+      <!-- Contenido del panel de información -->
+      <h1 style="margin-top: 15px;margin-bottom: 15px;text-align: center;">Catálogo</h1> 
+  </div>    
     
 <div style="float: left; width: 100%;margin-top: 25px;  text-align: center;margin-bottom: 20px;">
       
-        {% if user.is_authenticated %}
-        {% if user.is_staff %}
-          <!-- <button style= "width: 100%;"class="btn btn-success js-tooltip" onclick="location.href='{% url 'upload_file' %}'">
-            <i class="material-icons">note_add</i> Añadir Lámina Virtual
-          </button> -->
-
-          <div class="button" onclick="location.href='{% url 'upload_file' %}'">
-            <i class="material-icons">note_add</i>
-            <!-- <div class="button-description">Agregar</div> -->
-          </div>
-      
-          <div class="button" onclick="alert('Editar')">
-              <i class="material-icons">edit</i>
-              <!-- <div class="button-description">Editar</div> -->
-          </div>
-      
-          <div class="button" onclick="alert('Eliminar')">
-              <i class="material-icons">delete</i>
-              <!-- <div class="button-description">Eliminar</div> -->
-          </div>
-        {% endif %}
-        {% endif %}
     </div>
 
     
@@ -205,54 +313,74 @@
           {% endif %}
       </span>
     </div>  
-    <!-- <table class="product-table" >
-      <tr>
-        <th><h2>Nombre</h2></th>
-        <th><h2>Descripción</h2></th>
-        <th></th> 
-        <th></th>
-      </tr> -->
+    <div style="display: flex; flex-direction: row;">
       <div class="product-list">
+        {%load static%} 
     {%for slide in catalogo%}
-    <div class="product " >
-      <a href="{{ slide.path.url }}" download="{{ slide.name }}.stl">
-        <img src="{{slide.image.url}}" alt="{{ product.name }}" class="product-image">
+    <div class="product" data-id="{{ slide.id }}">
+        <img src="{{ slide.imagen.url }}" alt="{{ slide.nombre }}" class="product-image">
+        <!-- <button onclick="location.href='{% url 'Mapa' %}'" class="view-button btn btn-outline-primary js-tooltip">
+            <i  style="margin-right: 3px;" class="material-icons">visibility</i> <span class="text-option">Ver</span>
+        </button> -->
+        <button class="view-button btn btn-outline-primary js-tooltip">
+            <i style="margin-right: 3px;" class="material-icons">visibility</i> <span class="text-option">Ver</span>
+        </button>
+        <a href="{{ slide.path.url }}" download="{{ slide.nombre }}.stl" class="download-button-2 btn btn-outline-primary js-tooltip">
+            <i style="margin-right: 6px;padding-bottom: 5px;" class="material-icons">cloud_download</i> <spam class="text-option">Descargar</spam>
+        </a>
         <div class="product-description">
-          <h2 class="product-name">{{slide.name}} </h2>
-          <p style="font-size: 1rem">{{slide.description}}</p>
+            <h2 class="product-name">{{ slide.nombre }}</h2>
+            <p style="font-size: 1rem">{{ slide.descripcion_corta }}</p>
         </div>
     </div>
      
-
-
-{%endfor%}
+    {%endfor%}
       </div>
-    
+      <div class="div-image-view">
+        <div class="image-view">
+            <button class="close-button">&times;</button>
+            <img src="" alt="Vista previa" id="image-view-img">
+            <h2 id="image-view-title"></h2>
+            <p id="image-view-description"></p>
+        </div>
 
-    </ul>
-
-  
+    </div>
+</div> 
 </div>
 
-{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const products = document.querySelectorAll('.product');
+        const imageView = document.querySelector('.div-image-view');
+        const imageViewImg = document.getElementById('image-view-img');
+        const imageViewTitle = document.getElementById('image-view-title');
+        const imageViewDescription = document.getElementById('image-view-description');
+        const closeButton = document.querySelector('.close-button');
+        const catalogo = document.querySelector('.product-list');
 
- <!-- <tr class="btn-catalogo" onclick="location.href='{{ slide.get_absolute_url }}'">
-          <td>{{slide.name}}  </td>
-          <td>{{slide.description}}</td> -->
-          <!-- <td><a  href='{{ slide.get_absolute_url }}'>Ver</a> </td>  -->
-          <!-- <td> 
-           
-            <div style="margin-bottom: 2%;margin-left: 10%;padding-bottom: 70%;position:fix;width: 10%" >
-    
-              <img class="product-image"  src="{{slide.image.url}}" alt="Imagen de Perfil">
-            
-          </td> -->
-          <!-- <td>
-              <form  method="get">
-                <input type="hidden" name="placaId" value={{slide.id}}>
-              <span>
-                <button class="btn btn-outline-success js-tooltip" type="submit" >Seleccionar</button>
-              </span>
-            </form>
-          </td> -->
-    <!-- </tr> -->
+        products.forEach(product => {
+            product.querySelector('.view-button').addEventListener('click', function () {
+                const productId = product.getAttribute('data-id');
+                
+                fetch(`/modelo/${productId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        imageViewImg.src = data.imagen;
+                        imageViewTitle.textContent = data.nombre;
+                        imageViewDescription.textContent = data.descripcion;
+
+                        imageView.classList.add('active');
+                        catalogo.classList.add('active');
+                        imageView.style.height = catalogo.offsetHeight + 'px';
+                    });
+            });
+        });
+
+        closeButton.addEventListener('click', function () {
+            imageView.classList.remove('active');
+            catalogo.classList.remove('active');
+        });
+    });
+</script>
+
+{% endblock %}
