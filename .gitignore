@@ -1,11 +1,12 @@
 agroideas/media/archivo/*
 agroideas/media/slides/*
-**/migrations/
+**/migrations/*
 venv/*
 env/
 
 !agroideas/media/archivo/
 !agroideas/media/slides/
+!**/migrations/
 !venv/
 agroideas/docs
 
