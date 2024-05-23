@@ -48,8 +48,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 #     def form_valid(self,form):
 #         return super(SignUp,self).form_valid(form)
     
-# def sobre_nosotros(request):    
-#     return render(request,"website_management/sobre_nosotros.html")
+def sobre_nosotros(request):    
+    return render(request,"website_management/sobre_nosotros.html")
 
 # @login_required
 # def edit_profile(request):
