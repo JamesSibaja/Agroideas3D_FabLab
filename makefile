@@ -10,11 +10,11 @@ setup:
 	touch .env
 	. agroideas/venv/bin/activate && pip install --upgrade pip
 	
-    #sudo docker compose build redis db db_setup gunicorn daphne celery nginx
-	sudo docker compose build db gunicorn nginx
+    #sudo docker compose build redis database database_setup gunicorn daphne celery nginx
+	sudo docker compose build database gunicorn nginx
 
     # Iniciar y configurar las bases de datos PostgreSQL
-	docker compose up --no-build -d --no-recreate db gunicorn nginx
+	docker compose up --no-build -d --no-recreate database gunicorn nginx
 
 	
 	docker compose exec gunicorn python manage.py makemigrations
@@ -25,8 +25,8 @@ setup:
     # docker compose exec gunicorn python manage.py createsuperuser --username=postgres --email=jsibajagranados2@gmail.com
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 
-    # sudo docker compose build db_setup 
-    # docker compose up --no-build -d --no-recreate db_setup
+    # sudo docker compose build database_setup 
+    # docker compose up --no-build -d --no-recreate database_setup
 	
 init-docs: # docker compose run documentation make -C agroideas/docs html
 	if [ ! -d "./docs" ]; then \
@@ -48,11 +48,11 @@ generate-pdf: generate-docs
 # Arrancar el servidor Django y Celery
 run:
 	export DJANGO_SETTINGS_MODULE=settings
-	docker compose up --no-build  --no-recreate db gunicorn nginx
+	docker compose up --no-build  --no-recreate database gunicorn nginx
 
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
-	docker compose up --no-build -d --no-recreate db gunicorn nginx
+	docker compose up --no-build -d --no-recreate database gunicorn nginx
 	docker compose exec gunicorn python manage.py makemigrations
 	docker compose exec gunicorn python manage.py migrate
 	docker compose down
@@ -62,6 +62,6 @@ clean:
 	rm -rf docs/
 
 reset:
-	docker compose up --no-build -d --no-recreate db gunicorn nginx
+	docker compose up --no-build -d --no-recreate database gunicorn nginx
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 

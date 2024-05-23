@@ -1,0 +1,15 @@
+# Usa la imagen oficial de PostgreSQL como base
+FROM postgres:latest
+
+# Instala las dependencias necesarias para PostGIS
+RUN apt-get update && \
+    apt-get install -y \
+    postgis \
+    postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia el script de inicialización
+COPY init-db.sh /docker-entrypoint-initdb.d/
+
+# Establece permisos de ejecución para el script
+RUN chmod +x /docker-entrypoint-initdb.d/init-db.sh
