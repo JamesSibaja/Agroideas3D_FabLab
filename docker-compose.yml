@@ -1,8 +1,8 @@
-version: '3.9'
+version: '3.8'
 
 services:
 
-  database:
+  db:
     build:
       context: .
       dockerfile: Dockerfile.database
@@ -29,7 +29,7 @@ services:
     expose:
       - "8765"
     depends_on:
-      - database
+      - db
       # - redis
     networks:
       - mynetwork
