@@ -7,6 +7,8 @@ env/
 !agroideas/media/archivo/
 !agroideas/media/slides/
 !**/migrations/
+!**/migrations/__init__.py
+!**/migrations/__pycache__/
 !venv/
 agroideas/docs
 
