@@ -3,11 +3,12 @@
 setup:
 	@read -p "¿Estás trabajando en un entorno de producción? (y/n): " IS_PRODUCTION; \
 	export IS_PRODUCTION; \
-	@if [ "$$IS_PRODUCTION" = "y" ]; then \
-		make env start_services generate_certs \
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		make env start_services generate_certs; \
 	else \
-		make env start_services \
-	fi; \
+		make env start_services; \
+	fi
+
 
 env:
 	@echo "Configurando el archivo .env..." 
