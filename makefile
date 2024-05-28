@@ -15,7 +15,7 @@ env:
 	@if [ "$$IS_PRODUCTION" = "y" ]; then \
 		read -p "Introduce el dominio del servidor (p.ej., example.com): " domain; \
 	else \
-		domain="localtest.com"; \
+		domain="localhost"; \
 	fi; \
 	echo "DJANGO_ALLOWED_HOSTS=$$domain" > .env; \
 	echo "CSRF_TRUSTED_ORIGINS=https://$$domain" >> .env; \
@@ -68,7 +68,11 @@ start_nginx:
 
 run:
 	export DJANGO_SETTINGS_MODULE=settings; \
-	docker compose up --no-build -d --no-recreate db gunicorn nginx certbot; \
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		docker compose up --no-build --no-recreate db gunicorn nginx certbot; \
+	else \
+		docker compose up --no-build --no-recreate db gunicorn nginx; \
+	fi; \
 
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
