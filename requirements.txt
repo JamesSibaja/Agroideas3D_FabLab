@@ -22,8 +22,10 @@ pillow==9.0.1
 psycopg2-binary==2.9.6
 psycopg2==2.9.9
 pycparser==2.21
+python-decouple
 python-dateutil==2.8.2
 pytz==2022.1
+# django-decouple==2.1
 scipy==1.8.0
 sympy==1.9
 tzdata==2023.3

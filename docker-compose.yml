@@ -1,15 +1,14 @@
-version: '3.8'
+version: '3.9'
 
 services:
-
   db:
     build:
       context: .
       dockerfile: Dockerfile.database
     environment:
-      POSTGRES_DB: agro
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: agro3D
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -17,20 +16,18 @@ services:
     networks:
       - mynetwork
 
-
   gunicorn:
     build:
       context: .
       dockerfile: Dockerfile.gunicorn
-    # environment:
-    #   - GDAL_LIBRARY_PATH=$(gdal-config --prefix)/lib/libgdal.so
     volumes:
       - ./agroideas:/app
     expose:
       - "8765"
     depends_on:
       - db
-      # - redis
+    env_file:
+      - .env
     networks:
       - mynetwork
 
@@ -45,19 +42,33 @@ services:
       - mynetwork
 
   nginx:
-    image: nginx:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
     ports:
-      - mode: host
-        protocol: tcp
-        published: 80
-        target: 80
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./agroideas:/app
+      - /etc/letsencrypt:/etc/letsencrypt
+      - ./nginx/snippets:/etc/nginx/snippets
+      - /var/www/certbot:/var/www/certbot
     depends_on:
-      # - daphne
       - gunicorn
-      # - uvicorn
+    env_file:
+      - .env
+    environment:
+      - IS_PRODUCTION=${IS_PRODUCTION}
+    networks:
+      - mynetwork
+
+  certbot:
+    build:
+      context: .
+      dockerfile: Dockerfile.certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /var/www/certbot:/var/www/certbot
     networks:
       - mynetwork
 
@@ -67,3 +78,81 @@ networks:
 
 volumes:
   db_data:
+
+
+# version: '3.9'
+
+# services:
+
+#   db:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.database
+#     environment:
+#       POSTGRES_DB: agro
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: agro3D
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - db_data:/var/lib/postgresql/data
+#     networks:
+#       - mynetwork
+
+
+#   gunicorn:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.gunicorn
+#     # environment:
+#     #   - GDAL_LIBRARY_PATH=$(gdal-config --prefix)/lib/libgdal.so
+#     volumes:
+#       - ./agroideas:/app
+#     expose:
+#       - "8765"
+#     depends_on:
+#       - db
+#       # - redis
+#     networks:
+#       - mynetwork
+
+#   documentation:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.docs
+#     volumes:
+#       - .:/app
+#     command: make -C docs html
+#     networks:
+#       - mynetwork
+
+#   nginx:
+#     image: nginx:latest
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+#       - ./agroideas:/app
+#       - /etc/letsencrypt:/etc/letsencrypt
+#       - /var/www/certbot:/var/www/certbot
+#     depends_on:
+#       - gunicorn
+#     networks:
+#       - mynetwork
+
+#   certbot:
+#     image: certbot/certbot
+#     volumes:
+#       - /etc/letsencrypt:/etc/letsencrypt
+#       - /var/www/certbot:/var/www/certbot
+#     entrypoint: /bin/sh -c 'trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew; done;'
+#     networks:
+#       - mynetwork
+
+# networks:
+#   mynetwork:
+#     driver: bridge
+
+# volumes:
+#   db_data:
