@@ -2,7 +2,7 @@ agroideas/media/archivo/*
 agroideas/media/slides/*
 **/migrations/*
 venv/*
-env/
+.env/
 
 !agroideas/media/archivo/
 !agroideas/media/slides/
