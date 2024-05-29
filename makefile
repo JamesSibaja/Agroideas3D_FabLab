@@ -4,9 +4,9 @@ setup:
 	@read -p "¿Estás trabajando en un entorno de producción? (y/n): " IS_PRODUCTION; \
 	export IS_PRODUCTION; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		make env start_services generate_certs; \
+		make env start_django generate_certs; \
 	else \
-		make env start_services; \
+		make env start_django; \
 	fi
 
 
@@ -47,16 +47,22 @@ generate_certs:
 	sudo docker cp certbot:/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
 	sudo docker cp certbot:/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
 
-start_services: start_django start_nginx
+# start_services: start_django start_nginx
 
 start_django:
+	@echo "Iniciando Nginx..."
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
+	else \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
+	fi;
 	@echo "Configurando el entorno virtual y las dependencias..."
 	mkdir -p agroideas/media/slide agroideas/media/archivo
 	sudo apt-get install python3-pip python3-venv
 	python3 -m venv agroideas/venv
 	. agroideas/venv/bin/activate && pip install --upgrade pip
-	sudo docker compose build db gunicorn
-	sudo docker compose up --no-build -d --no-recreate db gunicorn
+	sudo docker compose build db gunicorn nginx
+	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
 
 	# Run database migrations
 	docker compose exec gunicorn python manage.py makemigrations
@@ -66,14 +72,9 @@ start_django:
 	# Create superuser
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 
-start_nginx:
-	@echo "Iniciando Nginx..."
-	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
-	else \
-		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
-	fi;
-	sudo docker compose up --build -d nginx
+# start_nginx:
+	
+# 	sudo docker compose up --build -d --no-recreate 
 
 run:
 	export DJANGO_SETTINGS_MODULE=settings; \
