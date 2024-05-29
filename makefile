@@ -52,9 +52,9 @@ generate_certs:
 start_django:
 	@echo "Iniciando Nginx..."
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
+		envsubst '$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
 	else \
-		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
+		envsubst '$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
 	fi;
 	@echo "Configurando el entorno virtual y las dependencias..."
 	mkdir -p agroideas/media/slide agroideas/media/archivo
