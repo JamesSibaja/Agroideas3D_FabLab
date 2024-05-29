@@ -13,7 +13,8 @@ import os
 from decouple import config
 
 # DJANGO_ALLOWED_HOSTS should be used for ALLOWED_HOSTS setting
-ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
+ALLOWED_HOSTS_DEFAULT = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
+CSRF_TRUSTED_ORIGINS_DEFAULT = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,6 +27,9 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
+
+
+
 
 
 # Application definition
@@ -127,8 +131,12 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CSRF_TRUSTED_ORIGINS = CSRF_TRUSTED_ORIGINS_DEFAULT
+    ALLOWED_HOSTS = ALLOWED_HOSTS_DEFAULT
+else:
+    CSRF_TRUSTED_ORIGINS = []
+    ALLOWED_HOSTS = ['*'] 
 # CSRF_TRUSTED_ORIGINS should be used for CSRF_TRUSTED_ORIGINS setting
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
