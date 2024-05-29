@@ -42,14 +42,19 @@ services:
       - mynetwork
 
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile.nginx
+    image: nginx:latest
     ports:
-      - "80:80"
-      - "443:443"
+      - mode: host
+        protocol: tcp
+        published: 80
+        target: 80
+      - mode: host
+        protocol: tcp
+        published: 443
+        target: 443
     volumes:
       - ./agroideas:/app
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt
       - ./nginx/snippets:/etc/nginx/snippets
       - /var/www/certbot:/var/www/certbot
@@ -57,8 +62,6 @@ services:
       - gunicorn
     env_file:
       - .env
-    environment:
-      - IS_PRODUCTION=${IS_PRODUCTION}
     networks:
       - mynetwork
 

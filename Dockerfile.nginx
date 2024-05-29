@@ -7,8 +7,8 @@ RUN apt-get update && \
 COPY start.sh /start.sh
 
 # Copia las plantillas de configuración
-COPY nginx.conf.production.template /etc/nginx/conf.d/default.conf.production.template
-COPY nginx.conf.development.template /etc/nginx/conf.d/default.conf.development.template
+# COPY nginx.conf /etc/nginx/conf.d/default.conf.production.template
+# COPY nginx.conf.development.template /etc/nginx/conf.d/default.conf.development.template
 
 
 # Copia los snippets de SSL por defecto

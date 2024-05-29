@@ -24,14 +24,18 @@ env:
 	secret_key=$$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))'); \
 	echo "POSTGRES_DB=agro" >> .env; \
 	echo "POSTGRES_USER=postgres" >> .env; \
+	echo "NGINX_HTTP_PORT=80" >> .env; \
 	echo "POSTGRES_PASSWORD=agro3D" >> .env; \
 	echo "POSTGRES_HOST=db" >> .env; \
 	echo "POSTGRES_PORT=5432" >> .env; \
 	echo "DJANGO_SECRET_KEY=$$secret_key" >> .env; \
+	echo "IS_PRODUCTION=$$IS_PRODUCTION" >> .env; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
 		echo "DJANGO_DEBUG=False" >> .env; \
+		echo "NGINX_HTTPS_PORT=443" >> .env; \
 	else \
 		echo "DJANGO_DEBUG=True" >> .env; \
+		echo "NGINX_HTTPS_PORT=" >> .env; \
 	fi; \
 	echo "DJANGO_SUPERUSER_EMAIL=$$email" >> .env; \
 	echo "CERTBOT_EMAIL=$$email" >> .env;
@@ -64,6 +68,11 @@ start_django:
 
 start_nginx:
 	@echo "Iniciando Nginx..."
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
+	else \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
+	fi;
 	sudo docker compose up --build -d nginx
 
 run:
@@ -76,7 +85,7 @@ run:
 
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
-	docker compose up --no-build -d --no-recreate db gunicorn nginx certbot
+	docker compose up --no-build -d --no-recreate db gunicorn nginx
 	docker compose exec gunicorn python manage.py makemigrations
 	docker compose exec gunicorn python manage.py migrate
 	docker compose down

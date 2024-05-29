@@ -1,16 +1,12 @@
 # Define el grupo de servidores de backend (Gunicorn)
 upstream django_app {
-    server gunicorn_vm:8765;
+    server gunicorn:8765;
 }
 
 # Configuración para HTTP
 server {
     listen 0.0.0.0:80;
-    server_name ${CERTBOT_DOMAIN};
-
-    location /.well-known/acme-challenge/ {
-        root /var/www/certbot;
-    }
+    server_name _;
 
     # Configuración de proxy para manejar solicitudes HTTP
     location / {

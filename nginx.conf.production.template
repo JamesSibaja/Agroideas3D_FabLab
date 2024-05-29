@@ -1,6 +1,6 @@
 # Define el grupo de servidores de backend (Gunicorn)
 upstream django_app {
-    server gunicorn_vm:8765;
+    server gunicorn:8765;
 }
 
 # Configuración para HTTP y redireccionamiento a HTTPS
