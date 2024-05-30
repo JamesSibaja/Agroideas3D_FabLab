@@ -80,6 +80,8 @@ networks:
 
 volumes:
   db_data:
+  certbot-www:
+  certbot-etc:
 
 
 # version: '3.9'
