@@ -61,8 +61,8 @@ start_django:
 	sudo apt-get install python3-pip python3-venv
 	python3 -m venv agroideas/venv
 	. agroideas/venv/bin/activate && pip install --upgrade pip
-	sudo docker compose build db gunicorn nginx
-	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
+	sudo docker compose build db gunicorn
+	sudo docker compose up --no-build -d --no-recreate db gunicorn
 
 	# Run database migrations
 	docker compose exec gunicorn python manage.py makemigrations
@@ -71,7 +71,7 @@ start_django:
 
 	# Create superuser
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-
+	sudo docker compose up --build -d nginx
 # start_nginx:
 	
 # 	sudo docker compose up --build -d --no-recreate 
