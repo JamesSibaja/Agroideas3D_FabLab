@@ -4,11 +4,10 @@ setup:
 	@read -p "¿Estás trabajando en un entorno de producción? (y/n): " IS_PRODUCTION; \
 	export IS_PRODUCTION; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		make env start_django generate_certs enable_https; \
+		make env set_permissions start_services generate_certs enable_https; \
 	else \
-		make env start_django; \
+		make env set_permissions start_services; \
 	fi
-
 
 env:
 	@echo "Configurando el archivo .env..." 
@@ -40,17 +39,23 @@ env:
 	echo "DJANGO_SUPERUSER_EMAIL=$$email" >> .env; \
 	echo "CERTBOT_EMAIL=$$email" >> .env;
 
+set_permissions:
+	@echo "Ajustando permisos de directorios..."
+	sudo chmod -R 755 ./certbot/www
+	sudo chmod -R 755 ./certbot/conf
+	sudo mkdir -p ./nginx/snippets
+	sudo chmod -R 755 ./nginx/snippets
+	sudo mkdir -p /var/www/certbot/.well-known/acme-challenge
+	sudo chmod -R 755 /var/www/certbot/.well-known/acme-challenge
+
 generate_certs:
 	@echo "Generando certificados para el entorno de producción..."
-	sudo docker compose run --rm --user=root --entrypoint "certbot certonly --nginx --agree-tos --email $$(cat .env | grep CERTBOT_EMAIL | cut -d '=' -f2) -d $$(cat .env | grep CERTBOT_DOMAIN | cut -d '=' -f2)" certbot
-	sudo mkdir -p ./nginx/snippets
-	sudo docker cp certbot:/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
-	sudo docker cp certbot:/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
+	docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email $$(grep CERTBOT_EMAIL .env | cut -d '=' -f2) --agree-tos --no-eff-email -d $$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2)
+	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
+	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
 
-# start_services: start_django start_nginx
-
-start_django:
-	@echo "Iniciando Nginx..."
+start_services:
+	@echo "Iniciando Nginx y otros servicios..."
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
 		CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.http.template > nginx.conf; \
 	else \
@@ -61,48 +66,45 @@ start_django:
 	sudo apt-get install python3-pip python3-venv
 	python3 -m venv agroideas/venv
 	. agroideas/venv/bin/activate && pip install --upgrade pip
-	sudo docker compose build db gunicorn nginx
-	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
+	sudo docker-compose build db gunicorn nginx certbot
+	sudo docker-compose up --no-build -d --no-recreate db gunicorn nginx certbot
 
 	# Run database migrations
-	docker compose exec gunicorn python manage.py makemigrations
-	docker compose exec gunicorn python manage.py migrate
 	sleep 10
+	docker-compose exec gunicorn python manage.py makemigrations
+	docker-compose exec gunicorn python manage.py migrate
 
 	# Create superuser
-	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-	# sudo docker compose up --build -d nginx
-# start_nginx:
-	
-# 	sudo docker compose up --build -d --no-recreate 
+	@docker-compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+
 enable_https:
 	@echo "Reconfigurando Nginx para HTTPS..."
-	sudo docker compose down
-	CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf; \
-	sudo docker compose up -d db gunicorn nginx
+	sudo docker-compose down
+	CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf
+	sudo docker-compose up -d db gunicorn nginx
 
 run:
 	export DJANGO_SETTINGS_MODULE=settings; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		docker compose up --no-build --no-recreate db gunicorn nginx certbot; \
+		docker-compose up --no-build --no-recreate db gunicorn nginx certbot; \
 	else \
-		docker compose up --no-build --no-recreate db gunicorn nginx; \
-	fi; \
+		docker-compose up --no-build --no-recreate db gunicorn nginx; \
+	fi;
 
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
-	docker compose up --no-build -d --no-recreate db gunicorn nginx
-	docker compose exec gunicorn python manage.py makemigrations
-	docker compose exec gunicorn python manage.py migrate
-	docker compose down
+	docker-compose up --no-build -d --no-recreate db gunicorn nginx
+	docker-compose exec gunicorn python manage.py makemigrations
+	docker-compose exec gunicorn python manage.py migrate
+	docker-compose down
 
 clean:
-	docker compose down
+	docker-compose down
 	rm -rf docs/
 
 reset:
-	docker compose up --no-build -d --no-recreate db gunicorn nginx certbot
-	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+	docker-compose up --no-build -d --no-recreate db gunicorn nginx certbot
+	@docker-compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 
 # .PHONY: setup run
 
