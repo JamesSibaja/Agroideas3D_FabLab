@@ -4,7 +4,7 @@ setup:
 	@read -p "¿Estás trabajando en un entorno de producción? (y/n): " IS_PRODUCTION; \
 	export IS_PRODUCTION; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		make env start_django generate_certs; \
+		make env start_django; \
 	else \
 		make env start_django; \
 	fi
