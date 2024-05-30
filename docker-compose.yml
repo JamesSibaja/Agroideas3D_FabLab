@@ -55,9 +55,9 @@ services:
     volumes:
       - ./agroideas:/app
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - /etc/letsencrypt:/etc/letsencrypt
       - ./nginx/snippets:/etc/nginx/snippets
-      - /var/www/certbot:/var/www/certbot
+      - ./certbot/www:/var/www/certbot  # Monta el directorio para los desafíos
+      - ./certbot/conf:/etc/letsencrypt  # Monta el directorio para los certificados
     depends_on:
       - gunicorn
     env_file:
@@ -70,8 +70,10 @@ services:
       context: .
       dockerfile: Dockerfile.certbot
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /var/www/certbot:/var/www/certbot
+      - ./certbot/www:/var/www/certbot  # Monta el directorio para los desafíos
+      - ./certbot/conf:/etc/letsencrypt # Monta el directorio para los certificados
+    entrypoint: ""
+    command: ""
     networks:
       - mynetwork
 

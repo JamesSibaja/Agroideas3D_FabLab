@@ -5,7 +5,7 @@ upstream django_app {
 
 # Configuración para HTTP y redireccionamiento a HTTPS
 server {
-    listen 0.0.0.0:80;
+    listen 80;
     server_name ${CERTBOT_DOMAIN};
 
     location /.well-known/acme-challenge/ {
@@ -39,10 +39,10 @@ server {
     }
 
     location /static/ {
-        alias /app/static/;  # Ajusta la ruta según tu estructura de directorios
+        alias /app/static/;
     }
 
     location /media/ {
-        alias /app/media/;  # Ajusta la ruta según tu estructura de directorios
+        alias /app/media/;
     }
 }
