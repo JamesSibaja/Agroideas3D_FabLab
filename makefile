@@ -50,9 +50,9 @@ set_permissions:
 
 generate_certs:
 	@echo "Generando certificados para el entorno de producción..."
-	docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email $$(grep CERTBOT_EMAIL .env | cut -d '=' -f2) --agree-tos --no-eff-email -d $$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2)
-	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
-	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
+	docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email $$(grep CERTBOT_EMAIL .env | cut -d '=' -f2) --agree-tos --no-eff-email -d $$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2)
+	sudo docker cp $$(docker compose ps -q certbot):/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
+	sudo docker cp $$(docker compose ps -q certbot):/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
 
 start_services:
 	@echo "Iniciando Nginx y otros servicios..."
@@ -66,45 +66,45 @@ start_services:
 	sudo apt-get install python3-pip python3-venv
 	python3 -m venv agroideas/venv
 	. agroideas/venv/bin/activate && pip install --upgrade pip
-	sudo docker-compose build db gunicorn nginx certbot
-	sudo docker-compose up --no-build -d --no-recreate db gunicorn nginx certbot
+	sudo docker compose build db gunicorn nginx certbot
+	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx certbot
 
 	# Run database migrations
 	sleep 10
-	docker-compose exec gunicorn python manage.py makemigrations
-	docker-compose exec gunicorn python manage.py migrate
+	docker compose exec gunicorn python manage.py makemigrations
+	docker compose exec gunicorn python manage.py migrate
 
 	# Create superuser
-	@docker-compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 
 enable_https:
 	@echo "Reconfigurando Nginx para HTTPS..."
-	sudo docker-compose down
+	sudo docker compose down
 	CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.production.template > nginx.conf
-	sudo docker-compose up -d db gunicorn nginx
+	sudo docker compose up -d db gunicorn nginx
 
 run:
 	export DJANGO_SETTINGS_MODULE=settings; \
 	if [ "$$IS_PRODUCTION" = "y" ]; then \
-		docker-compose up --no-build --no-recreate db gunicorn nginx certbot; \
+		docker compose up --no-build --no-recreate db gunicorn nginx certbot; \
 	else \
-		docker-compose up --no-build --no-recreate db gunicorn nginx; \
+		docker compose up --no-build --no-recreate db gunicorn nginx; \
 	fi;
 
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
-	docker-compose up --no-build -d --no-recreate db gunicorn nginx
-	docker-compose exec gunicorn python manage.py makemigrations
-	docker-compose exec gunicorn python manage.py migrate
-	docker-compose down
+	docker compose up --no-build -d --no-recreate db gunicorn nginx
+	docker compose exec gunicorn python manage.py makemigrations
+	docker compose exec gunicorn python manage.py migrate
+	docker compose down
 
 clean:
-	docker-compose down
+	docker compose down
 	rm -rf docs/
 
 reset:
-	docker-compose up --no-build -d --no-recreate db gunicorn nginx certbot
-	@docker-compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+	docker compose up --no-build -d --no-recreate db gunicorn nginx certbot
+	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 
 # .PHONY: setup run
 
