@@ -55,10 +55,10 @@ set_permissions:
 
 generate_certs:
 	@echo "Generando certificados para el entorno de producción..."
-	docker-compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email $$(grep CERTBOT_EMAIL .env | cut -d '=' -f2) --agree-tos --no-eff-email -d $$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2)
+	docker compose run --rm certbot certonly --webroot --webroot-path=/var/www/certbot --email $$(grep CERTBOT_EMAIL .env | cut -d '=' -f2) --agree-tos --no-eff-email -d $$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2)
 	sudo mkdir -p ./nginx/snippets
-	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
-	sudo docker cp $$(docker-compose ps -q certbot):/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
+	sudo docker cp $$(docker compose ps -q certbot):/etc/letsencrypt/options-ssl-nginx.conf ./nginx/snippets/
+	sudo docker cp $$(docker compose ps -q certbot):/etc/letsencrypt/ssl-dhparams.pem ./nginx/snippets/
 
 start_services:
 	@echo "Iniciando Nginx y otros servicios..."
