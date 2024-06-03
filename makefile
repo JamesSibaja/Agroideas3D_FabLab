@@ -97,6 +97,14 @@ run:
 		docker compose up --no-build --no-recreate db gunicorn nginx; \
 	fi; \
 
+run2:
+	export DJANGO_SETTINGS_MODULE=settings; \
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		docker compose up -d --no-build --no-recreate db gunicorn nginx certbot; \
+	else \
+		docker compose up -d --no-build --no-recreate db gunicorn nginx; \
+	fi; \
+
 migration:
 	export DJANGO_SETTINGS_MODULE=settings
 	docker compose up --no-build -d --no-recreate db gunicorn nginx
