@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Espera a que el servidor PostgreSQL esté listo
-dockerize -wait tcp://localhost:5432 -timeout 60s
+until psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c '\q'; do
+  echo "Esperando a que PostgreSQL esté listo..."
+  sleep 2
+done
 
-# Ejecuta el comando para crear la extensión PostGIS
-su - postgres -c 'psql -c "CREATE EXTENSION postgis;"'
+# Crea la extensión PostGIS si no existe
+echo "Habilitando la extensión PostGIS en la base de datos..."
+psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
