@@ -1,6 +1,7 @@
 agroideas/media/archivo/*
 agroideas/media/slides/*
 **/migrations/*
+**/venv/*
 venv/*
 .env/
 
