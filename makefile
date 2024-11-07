@@ -62,27 +62,53 @@ generate_certs:
 
 start_services:
 	@echo "Iniciando Nginx y otros servicios..."
-	if [ "$$IS_PRODUCTION" = "y" ];then \
-		CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.http.template > nginx.conf; \
+	if [ "$$IS_PRODUCTION" = "y" ]; then \
+		CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) && \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.http.template > nginx.conf; \
 	else \
-		CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
+		CERTBOT_DOMAIN=$$(grep CERTBOT_DOMAIN .env | cut -d '=' -f2) && \
+		envsubst '$$CERTBOT_DOMAIN' < nginx.conf.development.template > nginx.conf; \
 	fi;
-	@echo "Configurando el entorno virtual y las dependencias..."
+
+	@echo "Instalando dependencias del sistema necesarias para lxml..."
+	# Instalar dependencias del sistema necesarias para lxml (libxml2, libxslt, python3-dev)
+	sudo apt-get update && sudo apt-get install -y \
+		libxml2-dev \
+		libxslt1-dev \
+		python3-dev
+
+	@echo "Configurando el entorno virtual y las dependencias de Python..."
 	mkdir -p agroideas/media/slide agroideas/media/archivo
-	sudo apt-get install python3-pip python3-venv
-	python3 -m venv agroideas/venv
+
+	# Crear entorno virtual solo si no existe
+	if [ ! -d "agroideas/venv" ]; then \
+		python3 -m venv agroideas/venv; \
+	fi;
+	@echo "Activando el entorno virtual y actualizando pip..."
 	. agroideas/venv/bin/activate && pip install --upgrade pip
+
+	# Instalar las dependencias del proyecto desde requirements.txt
+	@echo "Instalando las dependencias de Python desde requirements.txt..."
+	. agroideas/venv/bin/activate && pip install -r requirements.txt
+
+	@echo "Construyendo y levantando servicios Docker..."
 	sudo docker compose build db gunicorn nginx
 	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
 
-	# Run database migrations
-	docker compose exec gunicorn python manage.py makemigrations
-	docker compose exec gunicorn python manage.py migrate
+	# Ejecutar migraciones de base de datos
+	@docker compose exec gunicorn python manage.py makemigrations
+	@docker compose exec gunicorn python manage.py migrate
 	sleep 10
 
-	# Create superuser
-	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-
+	# Crear superusuario (sin interacción)
+	# @echo "Creando superusuario si no existe..."
+	# @docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; \
+	# if not User.objects.filter(username='postgres').exists(): \
+	# 	User.objects.create_superuser('postgres', 'jsibajagranados2@gmail.com', 'your_password_here'); \
+	# else: \
+	# 	print('Superuser already exists')"
+	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='fabalab';email='jsibajagranados2@gmail.com'; password=getpass('Introducir contraseña para superusuario: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+ 
 enable_https:
 	@echo "Reconfigurando Nginx para HTTPS..."
 	sudo docker compose down
@@ -110,6 +136,7 @@ migration:
 	docker compose up --no-build -d --no-recreate db gunicorn nginx
 	docker compose exec gunicorn python manage.py makemigrations
 	docker compose exec gunicorn python manage.py migrate
+	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='fablab';email='jsibajagranados2@gmail.com'; password=getpass('Introducir contraseña para superusuario: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
 	docker compose down
 
 clean:
@@ -119,78 +146,3 @@ clean:
 reset:
 	docker compose up --no-build -d --no-recreate db gunicorn nginx certbot
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-
-# .PHONY: setup run
-
-# setup:
-#  	# sudo apt-get install docker-ce docker-ce-cli containerd.io
-# 	export DJANGO_SETTINGS_MODULE=agroideas.agroideas.settings
-# 	mkdir -p agroideas/media/slide agroideas/media/archivo
-# 	sudo apt-get install python3-pip
-# 	sudo apt-get install python3-venv
-# 	python3 -m venv agroideas/venv
-# 	touch .env
-# 	. agroideas/venv/bin/activate && pip install --upgrade pip
-	
-#     #sudo docker compose build redis db db_setup gunicorn daphne celery nginx
-
-# 	sudo docker compose build db gunicorn nginx certbot
-
-#     # Iniciar los servicios para obtener certificados SSL
-# 	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
-# 	sudo docker compose run --rm certbot certonly --webroot --webroot-path=/app --email tu-email@example.com --agree-tos --no-eff-email -d tu-dominio.com -d www.tu-dominio.com
-    
-
-#     # Iniciar y configurar las bases de datos PostgreSQL
-# 	sudo docker compose down
-# 	docker compose up --no-build -d --no-recreate db gunicorn nginx
-
-	
-# 	docker compose exec gunicorn python manage.py makemigrations
-# 	docker compose exec gunicorn python manage.py migrate
-# 	sleep 10
-	
-#     # Crear un superusuario (cambiar los valores de acuerdo a tus necesidades) 
-#     # docker compose exec gunicorn python manage.py createsuperuser --username=postgres --email=jsibajagranados2@gmail.com
-# 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-
-#     # sudo docker compose build db_setup 
-#     # docker compose up --no-build -d --no-recreate db_setup
-	
-# init-docs: # docker compose run documentation make -C agroideas/docs html
-# 	if [ ! -d "./docs" ]; then \
-#         mkdir docs; \
-# 		. agroideas/venv/bin/activate && pip install --upgrade pip; \
-# 		pip install -U sphinx; \
-#         cd docs && sphinx-quickstart; \
-#     fi
-# 	sudo docker compose build documentation	
-
-# generate-docs:
-# 	docker compose up --no-build -d --no-recreate documentation
-# 	# docker compose exec documentation make -C /app/docs html
-# 	cd ./docs/build/html && python3 -m http.server 8080
-
-# generate-pdf: generate-docs
-# 	docker compose run documentation make -C agroideas/docs latexpdf
-
-# # Arrancar el servidor Django y Celery
-# run:
-# 	export DJANGO_SETTINGS_MODULE=settings
-# 	docker compose up --no-build  --no-recreate db gunicorn nginx
-
-# migration:
-# 	export DJANGO_SETTINGS_MODULE=settings
-# 	docker compose up --no-build -d --no-recreate db gunicorn nginx
-# 	docker compose exec gunicorn python manage.py makemigrations
-# 	docker compose exec gunicorn python manage.py migrate
-# 	docker compose down
-
-# clean:
-# 	docker compose down
-# 	rm -rf docs/
-
-# reset:
-# 	docker compose up --no-build -d --no-recreate db gunicorn nginx
-# 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='postgres'; email='jsibajagranados2@gmail.com'; password=getpass('Enter password for superuser: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
-
