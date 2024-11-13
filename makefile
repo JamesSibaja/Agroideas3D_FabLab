@@ -75,6 +75,7 @@ start_services:
 	sudo apt-get update && sudo apt-get install -y \
 		libxml2-dev \
 		libxslt1-dev \
+		ffmpeg \
 		python3-dev
 
 	@echo "Configurando el entorno virtual y las dependencias de Python..."
@@ -100,14 +101,7 @@ start_services:
 	@docker compose exec gunicorn python manage.py migrate
 	sleep 10
 
-	# Crear superusuario (sin interacción)
-	# @echo "Creando superusuario si no existe..."
-	# @docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; \
-	# if not User.objects.filter(username='postgres').exists(): \
-	# 	User.objects.create_superuser('postgres', 'jsibajagranados2@gmail.com', 'your_password_here'); \
-	# else: \
-	# 	print('Superuser already exists')"
-	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='fabalab';email='jsibajagranados2@gmail.com'; password=getpass('Introducir contraseña para superusuario: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
+	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='fablab';email='jsibajagranados2@gmail.com'; password=getpass('Introducir contraseña para superusuario: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"
  
 enable_https:
 	@echo "Reconfigurando Nginx para HTTPS..."

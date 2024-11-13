@@ -1,5 +1,7 @@
 agroideas/media/archivo/*
 agroideas/media/slides/*
+agroideas/media/modelos/*
+agroideas/media/impresoras/*
 **/migrations/*
 **/venv/*
 venv/*
@@ -7,6 +9,8 @@ venv/*
 
 !agroideas/media/archivo/
 !agroideas/media/slides/
+!agroideas/media/modelos/
+!agroideas/media/impresoras/
 !**/migrations/
 !**/migrations/__init__.py
 !venv/

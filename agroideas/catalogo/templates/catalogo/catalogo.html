@@ -380,6 +380,16 @@
             imageView.classList.remove('active');
             catalogo.classList.remove('active');
         });
+        function iniciarReconocimiento() {
+            if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+                // Usa la API de Web Speech si está disponible
+                iniciarReconocimientoVoz();
+            } else {
+                // Alternativa para navegadores que no soportan Web Speech
+                iniciarGrabacionAlternativa();
+            }
+        }
+
     });
 </script>
 
