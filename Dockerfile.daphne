@@ -1,5 +1,5 @@
 # Utiliza una imagen base de Python para Django
-FROM python:3.10.12
+FROM python:3.13.6
 
 # Instala las dependencias del sistema necesarias para lxml
 RUN apt-get update

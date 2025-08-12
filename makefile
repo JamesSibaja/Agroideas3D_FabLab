@@ -97,8 +97,9 @@ start_services:
 	sudo docker compose up --no-build -d --no-recreate db gunicorn nginx
 
 	# Ejecutar migraciones de base de datos
+
 	@docker compose exec gunicorn python manage.py makemigrations
-	@docker compose exec gunicorn python manage.py migrate
+	@docker compose exec gunicorn /app/wait-for-db.sh db python manage.py migrate
 	sleep 10
 
 	@docker compose exec gunicorn python manage.py shell -c "from django.contrib.auth.models import User; from getpass import getpass; username='fablab';email='jsibajagranados2@gmail.com'; password=getpass('Introducir contraseña para superusuario: '); User.objects.create_superuser(username, email, password) if not User.objects.filter(username=username).exists() else print('Superuser already exists')"

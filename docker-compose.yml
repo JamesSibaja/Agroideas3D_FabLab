@@ -15,6 +15,11 @@ services:
       - db_data:/var/lib/postgresql/data
     networks:
       - mynetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   gunicorn:
     build:
@@ -25,21 +30,22 @@ services:
     expose:
       - "8765"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     networks:
       - mynetwork
 
-  documentation:
-    build:
-      context: .
-      dockerfile: Dockerfile.docs
-    volumes:
-      - .:/app
-    command: make -C docs html
-    networks:
-      - mynetwork
+  # documentation:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.docs
+  #   volumes:
+  #     - .:/app
+  #   command: make -C docs html
+  #   networks:
+  #     - mynetwork
 
   nginx:
     image: nginx:latest
